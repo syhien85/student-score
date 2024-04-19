@@ -1,0 +1,41 @@
+services:
+  student-score-db:
+    container_name: student-score-db
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      MYSQL_DATABASE: demo_student_score
+    ports:
+      - 3307:3306
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - student-score-network
+  student-score-backend:
+    container_name: student-score-backend
+    restart: always
+    depends_on:
+      - student-score-db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8889:8080
+    expose:
+      - 8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://student-score-db:3306/demo_student_score?createDatabaseIfNotExist=true
+      MYSQL_ROOT_PASSWORD: 123123
+    volumes:
+      - student-score-backend:/file:/file
+    networks:
+      - student-score-network
+
+volumes:
+  db:
+  student-score-backend:
+networks:
+  student-score-network:
+    name: student-score-network
+    driver: bridge
